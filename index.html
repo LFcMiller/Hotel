@@ -2,6 +2,15 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
     <script src="main.js"></script>
+    <style>
+        #checkInDisplay, #checkOutDisplay {
+            width: 100vw;
+            height: 10vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to The Empty Array!</h1>
@@ -12,17 +21,24 @@
     <!--Floors are to be built with money-->
     <!--Each Floor is 20 rooms-->
     <div class="rooms">
-        <div>Number of Rooms Available: <span id="roomsAvailable"></span></div>
-        <div>Number of Rooms Occupied: <span id="roomsOccupied"></span></div>
+        <div>Rooms Available: <span id="roomsAvailable"></span></div>
+        <div>Rooms Occupied: <span id="roomsOccupied"></span></div>
     </div>
     <div class="guests">
-        <div>Number of Guests in hotel: <span id="guestsCheckedIn"></span></div>
-        <div>Number of Guests since opening: <span id="guestsTotal"></span></div>
-        <div>Number of Guests rejected: <span id="guestsRejected"></span></div>
+        <div>Guests in The Empty Array: <span id="guestsCheckedIn"></span></div>
+        <div>Guests since opening: <span id="guestsTotal"></span></div>
+        <div>Guests rejected: <span id="guestsRejected"></span></div>
         <!--Create New Guests on a set interval-->
         <!--Guests checked out after predetermined number of days in JS Object-->
     </div>
-    <div class="funds">Funds Available: <span id="money"></span></div>
+    <div class="staff">Cleaning Staff: <span id="cleaningStaff"></span></div>
+    <div class="funds">Funds Available: <span id="fundsAvailable"></span></div>
     <!--Money accrued from room payments-->
+    <div id="checkInDisplay">
+        <span></span>
+    </div>
+    <div id="checkOutDisplay">
+        <span></span>
+    </div>
 </body>
 </html>
