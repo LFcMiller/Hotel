@@ -12,7 +12,7 @@
 //Fake Yelp, negative affects lead to bad reviews, extend interval between new guests +++DONE+++
 //Length of Day: 30 seconds
 //Time to clean room: 10 seconds; ++IMPLEMENTED++
-//Cleaning Staff can only clean one room per day (equivalent to 8 hour shift)
+//Cleaning Staff can only clean one room per day (equivalent to 8 hour shift) ---IN PROGRESS(CHRS)---
 //Dynamically create variable name for guest equal to their name from name array +++DONE+++
 //save number of good and bad reviews to guests created. After a certain number of bad reviews, they do not return. ---IN PROGRESS(CODY)---
 //Create a system for repeat guests
@@ -21,6 +21,7 @@
 //Set cycle of guests arriving at Hotel to start after first floor is built
 //Create DOM Elements for hiring new cleaning staff
 //Set interval for hotel to be cleaned
+
 $(document).ready(function(){
     hotel = new Hotel();
     controller = new Controller();
@@ -40,6 +41,21 @@ $(document).ready(function(){
         }
     }, hotel.currentDemand());
 });
+
+function Day() {
+    var day = 0;
+    var hour = 0;
+    if (hour === 24) {
+        day++;
+
+    }
+    setInterval(function() {
+        hour++
+    }, 5000)
+}
+
+console.log()
+
 var names = ["Jim","Pam","Kevin","Creed","Michael","Dwight","Angela","Meredith","Toby","Stanley","Big Tuna","Andy","Kelly","Ryan","Erin","Oscar","Phyllis","Darryl","Gabe","Holly","Jan","Robert California"];
 function Hotel() {
     this.rooms = [];
@@ -154,6 +170,8 @@ function Staff(name) {
                         hotel.rooms[i].beingCleaned = false;
                         console.log("Room " + i + " is clean, boss!");
                         staff.workedToday = true;
+                        staff.workTimeRemaining = 0; //AFTER ROOM IS CLEANED NO EMPLOYEE DONE FOR DAY
+                        staff.workedToday = true; //AFTER WORK IS DONE STATUS CHANGED
                     }, 10000);
                 }(i, this));
                 return;
@@ -163,6 +181,7 @@ function Staff(name) {
             console.log("Nothing to clean today!");
         }
     };
+    this.workTimeRemaining = 10000;
 }
 function Controller() {
     this.addEventListeners = function() {
