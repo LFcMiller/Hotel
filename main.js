@@ -22,25 +22,10 @@
 //Create DOM Elements for hiring new cleaning staff
 //Set interval for hotel to be cleaned
 $(document).ready(function(){
-    hotel = new Hotel();
-    controller = new Controller();
-    setInterval(function(){
-        var guestName = names[Math.floor(Math.random()*names.length)];
-        var guest = new Guest(guestName);
-        hotel.checkIn(guest);
-        if (guest.numberOfRoom !== null) {
-            var guestID = Math.floor(Math.random()*1000000);
-            guest.ID = guestID;
-            hotel.currentGuests[guestID] = [guest];
-            if (hotel.guestHistory[guestName] === undefined) {
-                hotel.guestHistory[guestName] = [guest];
-            } else {
-                hotel.guestHistory[guestName].push(guest);
-            }
-        }
-    }, hotel.currentDemand());
+    hotel = new Hotel(); //sets variable to its actual value, the Hotel
+    controller = new Controller(); //sets variable to its actual value, the Controller
+    setInterval(getName, hotel.currentDemand()); //time period set to period adjusted for reviews
 });
-var names = ["Jim","Pam","Kevin","Creed","Michael","Dwight","Angela","Meredith","Toby","Stanley","Big Tuna","Andy","Kelly","Ryan","Erin","Oscar","Phyllis","Darryl","Gabe","Holly","Jan","Robert California"];
 function Hotel() {
     this.rooms = [];
     this.roomsOccupied = 0;
@@ -51,22 +36,22 @@ function Hotel() {
     this.availableFunds = 3000;
     this.goodReviews = 0;
     this.badReviews = 0;
-    this.hireStaff = function(number) {
+    this.hireStaff = function(number) { //hire new staff
         for (var i = 0; i < number; i++) {
             var staffName = names[Math.floor(Math.random()*names.length)];
             this.cleaningStaff.push(new Staff(staffName));
         }
     };
-    this.clean = function() {
+    this.clean = function() { //clean hotel with all cleaning staff
         for (var i = 0; i < this.cleaningStaff.length; i++) {
             this.cleaningStaff[i].cleanRoom();
         }
     };
     this.init = function() {
-        this.hireStaff(2);
+        this.hireStaff(2); //start with two cleaning staff
     };
     this.currentDemand = function() {
-        return (5000-(this.goodReviews*50)+(this.badReviews*50));
+        return (5000-(this.goodReviews*50)+(this.badReviews*50)); //Adjust time for effects of reviews
     };
     this.addFloor = function (number) {
         var numberOfFloors = parseInt(number);
@@ -186,5 +171,29 @@ function Controller() {
     };
     this.init();
 }
+function guestArrival(person){ //Interval for guests arriving at hotel
+    var guestName = person.name; //sets guest name from array at random
+    var guest = new Guest(guestName); //creates new guest with name
+    hotel.checkIn(guest); //checks in guest
+    if (guest.numberOfRoom !== null) { //if guest didn't get a room, this will not execute
+        var guestID = Math.floor(Math.random()*1000000); //sets guest ID
+        guest.ID = guestID; //Gives guest their ID as attribute
+        hotel.currentGuests[guestID] = [guest]; //Adds guest to current Guest list by ID
+        if (hotel.guestHistory[guestName] === undefined) { //Adds guest to guestHistory by name
+            hotel.guestHistory[guestName] = [guest]; //If no other guests with their name have been to hotel, they are added to guest history as an array with themself as 0th value
+        } else {
+            hotel.guestHistory[guestName].push(guest); //If another guest has been in hotel by their name, they are pushed to the array containing guests by that name
+        }
+    }
+}
 var hotel = null;
 var controller = null;
+var ajaxOptions = {
+    url: 'https://uinames.com/api/?region=united+states',
+    success: guestArrival,
+    dataType: 'json',
+    error: function(){ console.log('oops')}
+};
+function getName(){
+    $.ajax(ajaxOptions);
+}
