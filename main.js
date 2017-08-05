@@ -38,24 +38,22 @@ function Day() {
     setInterval(function() {
         hour++
     }, 5000)
-}
-
-console.log()
+};
 
 
 function Hotel() {
-    this.rooms = [];
-    this.roomsOccupied = 0;
-    this.currentGuests = {};
-    this.guestHistory = {};
-    this.guestsTotal = 0;
-    this.cleaningStaff = [];
-    this.availableFunds = 3000;
-    this.goodReviews = 0;
-    this.badReviews = 0;
+    this.rooms = []; //All rooms in hotel
+    this.roomsOccupied = 0; //Rooms currently occupied
+    this.currentGuests = {}; //Guests currently in hotel
+    this.guestHistory = {}; //All guests who have stayed in hotel
+    this.guestsTotal = 0; //number of guests who have stayed in hotel
+    this.cleaningStaff = []; //Array of all cleaning staff
+    this.availableFunds = 3000; //Available money to be spent. Must buy first floor, so initial total should be 1000 dollars.
+    this.goodReviews = 0; //Number of good reviews accrued from guests
+    this.badReviews = 0; //Number of bad reviews accrued from rejected potential guests
     this.hireStaff = function(number) { //hire new staff
         for (var i = 0; i < number; i++) {
-            var staffName = names[Math.floor(Math.random()*names.length)];
+            var staffName = null; //FIND WAY TO SET RANDOM NAME WHILE NOT RUNNING GUEST ARRIVAL AUTOMATICALLY
             this.cleaningStaff.push(new Staff(staffName));
         }
     };
@@ -70,116 +68,109 @@ function Hotel() {
     this.currentDemand = function() {
         return (5000-(this.goodReviews*50)+(this.badReviews*50)); //Adjust time for effects of reviews
     };
-    this.addFloor = function (number) {
+    this.addFloor = function (number) { //Buy floor for hotel
         var numberOfFloors = parseInt(number);
         if(numberOfFloors === undefined || isNaN(numberOfFloors)) {
             console.log("That is not a viable number of floors.");
             return;
         }
-        this.availableFunds-=(numberOfFloors*2000);
-        for ( var i = 0; i < (numberOfFloors*20); i++) {
+        this.availableFunds-=(numberOfFloors*2000); //Remove cost of floor
+        for ( var i = 0; i < (numberOfFloors*20); i++) { //20 rooms per floor
             this.rooms.push(new Room());
         }
-        controller.resetDisplays();
+        controller.resetDisplays(); //update DOM
     };
     this.checkIn = function (guest) {
-        for (var i = 0; i < this.rooms.length; i++) {
-            if(this.rooms[i].guest === null && this.rooms[i].isClean === true) {
-                if(this.rooms[i].hasWindow === guest.wantsView && this.rooms[i].numBeds >= guest.partySize) {
-                    this.rooms[i].guest = guest;
-                    guest.numberOfRoom = i;
-                    this.currentGuests[guest] = guest;
-                    $("#checkInDisplay > span").text("Welcome, "+guest.name+"! Your room is Room "+i+".");
-                    // console.log("Welcome, "+guest.name+"! Your room is Room "+i+".");
-                    this.roomsOccupied++;
-                    this.guestsTotal++;
-                    guest.beginStay();
-                    controller.resetDisplays();
+        for (var i = 0; i < this.rooms.length; i++) { //search for unoccupied room
+            if(this.rooms[i].guest === null && this.rooms[i].isClean === true) { //if not occupied and clean
+                if(this.rooms[i].hasWindow === guest.wantsView && this.rooms[i].numBeds >= guest.partySize) { //check if room can accomodate guest's party and desire for window
+                    this.rooms[i].guest = guest; //put guest in room
+                    guest.numberOfRoom = i; //save room number to guest
+                    this.currentGuests[guest] = guest; //add guest to current guest registry
+                    $("#checkInDisplay > span").text("Welcome, "+guest.name+"! Your room is Room "+i+"."); //Message on DOM
+                    this.roomsOccupied++; //increment occupied rooms
+                    this.guestsTotal++; //increment total guests count
+                    guest.beginStay(); //begin timer for length of stay
+                    controller.resetDisplays(); //update DOM
                     return;
                 }
             }
         }
-        $("#checkInDisplay > span").text("No rooms are available that fit your needs, "+guest.name+", sorry.");
-        // console.log("No rooms are available that fit your needs, "+guest.name+", sorry.");
-        this.badReviews++;
-        controller.resetDisplays();
+        $("#checkInDisplay > span").text("No rooms are available that fit your needs, "+guest.name+", sorry."); //if they couldn't be placed, show rejection message
+        this.badReviews++; //give hotel bad review
+        controller.resetDisplays(); //Update DOM
     };
-    this.checkOut = function (guest) {
-        this.rooms[guest.numberOfRoom].guest = null;
-        this.rooms[guest.numberOfRoom].isClean = false;
-        delete this.currentGuests[guest.ID];
-        $("#checkOutDisplay > span").text("Thank you for staying at The Empty Array, "+guest.name+"! Please come back soon!");
-        this.availableFunds+=(this.rooms[guest.numberOfRoom].price * guest.lengthOfStay);
-        this.roomsOccupied--;
-        this.goodReviews++;
-        controller.resetDisplays();
+    this.checkOut = function (guest) { //check out guest
+        this.rooms[guest.numberOfRoom].guest = null; //reset room to empty
+        this.rooms[guest.numberOfRoom].isClean = false; //set room to dirty
+        delete this.currentGuests[guest.ID]; //delete guest from current registry, still in guest history
+        $("#checkOutDisplay > span").text("Thank you for staying at The Empty Array, "+guest.name+"! Please come back soon!"); //message on DOM
+        this.availableFunds+=(this.rooms[guest.numberOfRoom].price * guest.lengthOfStay); //calculate price based on room price and length of stay
+        this.roomsOccupied--; //decrement occupied room count
+        this.goodReviews++; //increment good reviews
+        controller.resetDisplays(); //update DOM
     };
-    this.init();
+    this.init(); //currently gives two cleaning staff
 }
 function Room() {
-    this.numBeds = Math.floor(Math.random() * 2) +1;
-    this.hasWindow = Math.round(Math.random());
-    this.price = 40 * this.numBeds + (this.hasWindow * 20);
-    this.isClean = true;
-    this.beingCleaned = false;
-    this.guest = null;
+    this.numBeds = Math.floor(Math.random() * 2) +1; //number of beds in room
+    this.hasWindow = Math.round(Math.random()); // 0 is no, 1 is yes
+    this.price = 40 * this.numBeds + (this.hasWindow * 20); // additional cost for extra beds and window
+    this.isClean = true; //clean and ready to be used or not
+    this.beingCleaned = false; //currently being cleaned
+    this.guest = null; //guest currently in room
 }
 function Guest(name) {
-    this.self = this;
-    this.name = name;
-    this.ID = null;
-    this.numberOfRoom = null;
-    this.partySize = Math.floor(Math.random() * 2) + 1;
-    this.wantsView = Math.round(Math.random());
-    this.lengthOfStay = Math.floor(Math.random() * 4) + 1;
-    this.beginStay = function() {
-        var self = this;
-        setTimeout(function(){
-            hotel.checkOut(self);
-        }, 30000 * this.lengthOfStay);
+    this.name = name; //guest name
+    this.ID = null; //guest ID
+    this.numberOfRoom = null; //room number once checked in
+    this.partySize = Math.floor(Math.random() * 2) + 1; //number of people in party
+    this.wantsView = Math.round(Math.random()); //wants window or not. 0 is no, 1 is yes
+    this.lengthOfStay = Math.floor(Math.random() * 4) + 1; //number of days staying
+    this.beginStay = function() { //starts time period of guest stay using closure and immediately invoked function
+        (function (guest) {
+            setTimeout(function(){
+                hotel.checkOut(guest);
+            }, 30000 * guest.lengthOfStay);
+        }(this));
     };
-    this.numberOfRoom = null;
 }
 function Staff(name) {
-    this.name = name;
+    this.name = name; //staff name
     this.speed = 1; //Can be altered to affect how fast they clean. Maybe with happiness level?
     this.workedToday = false; //If true, they should wait until next day begins to try cleaning again.
     this.cleanRoom = function () {
-        var roomCleaned = false;
-        for (var i = 0; i < hotel.rooms.length; i++) {
-            if (hotel.rooms[i].isClean === false && hotel.rooms[i].beingCleaned === false) {
-                hotel.rooms[i].beingCleaned = true;
-                roomCleaned = true;
-                (function (i, staff) {
-                    setTimeout(function () {
-                        hotel.rooms[i].isClean = true;
-                        hotel.rooms[i].beingCleaned = false;
-                        console.log("Room " + i + " is clean, boss!");
-                        staff.workedToday = true;
+        for (var i = 0; i < hotel.rooms.length; i++) { //cycle through hotel rooms
+            if (hotel.rooms[i].isClean === false && hotel.rooms[i].beingCleaned === false) { //if room is dirty and not currently being cleaned
+                hotel.rooms[i].beingCleaned = true; //mark room as being cleaned
+                (function (i, staff) { //closure to save i value and current staff member
+                    setTimeout(function () { //finish cleaning room in ten seconds
+                        hotel.rooms[i].isClean = true; //room now clean
+                        hotel.rooms[i].beingCleaned = false; //no longer being cleaned
+                        console.log("Room " + i + " is clean, boss!"); //message should be on DOM eventually
+                        staff.workedToday = true; //mark staff as having worked today
                         staff.workTimeRemaining = 0; //AFTER ROOM IS CLEANED NO EMPLOYEE DONE FOR DAY
                         staff.workedToday = true; //AFTER WORK IS DONE STATUS CHANGED
                     }, 10000);
                 }(i, this));
-                return;
+                return; //end function before message denoting no room was cleaned
             }
         }
-        if (roomCleaned === false) {
-            console.log("Nothing to clean today!");
-        }
+        console.log("Nothing to clean today!"); //logged if all rooms were already clean
     };
     this.workTimeRemaining = 10000;
 }
 function Controller() {
     this.addEventListeners = function() {
-        $("#submitNewRooms").on("click", function() {
+        $("#submitNewRooms").on("click", function() { //click handler to build floor
             var num = parseInt($("#newFloorInput").val());
             hotel.addFloor(num);
         });
     };
-    this.init = function() {
+    this.init = function() { //add click handler on startup
         this.addEventListeners();
     };
-    this.resetDisplays = function() {
+    this.resetDisplays = function() { //reset DOM elements
         $("#floorCount").text((hotel.rooms.length / 20));
         $("#roomsOccupied").text(hotel.roomsOccupied);
         $("#roomsAvailable").text((hotel.rooms.length - hotel.roomsOccupied));
@@ -206,14 +197,14 @@ function guestArrival(person){ //Interval for guests arriving at hotel
         }
     }
 }
-var hotel = null;
-var controller = null;
-var ajaxOptions = {
-    url: 'https://uinames.com/api/?region=united+states',
-    success: guestArrival,
-    dataType: 'json',
-    error: function(){ console.log('oops')}
+var hotel = null; //reserve variable for document ready
+var controller = null; //reserve variable for document ready
+var ajaxOptions = { //random name repository preferences
+    url: 'https://uinames.com/api/?region=united+states', //only american names
+    success: guestArrival, //upon successfully getting name, run this function
+    dataType: 'json', //type data is saved as
+    error: function(){ console.log('oops')} //logged if there was a problem getting name
 };
-function getName(){
+function getName(){ //function to start getting random name
     $.ajax(ajaxOptions);
 }
