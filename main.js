@@ -23,7 +23,7 @@
 //Create DOM Elements for hiring new cleaning staff
 //Set interval for hotel to be cleaned +++DONE+++
 //Make guest check in and checkout display messages display as a scroll, so that actions happening in quick succession can all be seen +++DONE+++
-//Update rooms available to reflect rooms that are dirty ---IN PROGRESS(CODY)---
+//Update rooms available to reflect rooms that are dirty +++DONE+++
 
 $(document).ready(function(){
     hotel = new Hotel(); //sets variable to its actual value, the Hotel
@@ -67,7 +67,7 @@ function Day() {// creates the day and sets the hour interval to 5 seconds
 }
 function Hotel() {
     this.rooms = []; //All rooms in hotel
-    this.roomsOccupied = 0; //Rooms currently occupied
+    this.roomsDirty = 0; //Rooms that need to be cleaned
     this.currentGuests = {}; //Guests currently in hotel
     this.guestHistory = {}; //All guests who either have or haven't stayed in hotel previously.
     this.possibleReturnGuests = []; //List to pull possible repeat-visitor guests from.
@@ -121,7 +121,6 @@ function Hotel() {
                     this.currentGuests[guestID] = [guest]; //Adds guest to current Guest list by ID
                     textInsert = $("<div>").text("Enjoy your stay, "+guest.name+"! Your room is Room "+i+"."); //Message on DOM
                     $("#checkInDisplay").append(textInsert);
-                    this.roomsOccupied++; //increment occupied rooms
                     this.guestsTotal++; //increment total guests count
                     guest.beginStay(); //begin timer for length of stay
                     controller.resetDisplays(); //update DOM
@@ -144,13 +143,13 @@ function Hotel() {
     this.checkOut = function (guest) { //check out guest
         this.rooms[guest.numberOfRoom].guest = null; //reset room to empty
         this.rooms[guest.numberOfRoom].isClean = false; //set room to dirty
+        this.roomsDirty++;
         delete this.currentGuests[guest.ID]; //delete guest from current registry, still in guest history
         guest.ID = null; //resets guest's ID number, since they are no longer staying at hotel
         textInsert = $("<div>").text("Thank you for staying at The Empty Array, "+guest.name+"! Please come back soon!");
         $("#checkOutDisplay").append(textInsert); //message on DOM
         this.availableFunds+=(this.rooms[guest.numberOfRoom].price * guest.lengthOfStay); //calculate price based on room price and length of stay
         guest.numberOfRoom = null; //resets guest's room number, since they are no longer staying at hotel
-        this.roomsOccupied--; //decrement occupied room count
         this.goodReviews++; //increment good reviews
         guest.goodReviews++; //remember's guest's good review
         this.possibleReturnGuests.push(guest); //Add to list of possible return guests
@@ -195,6 +194,7 @@ function Staff(name) {
                 (function (i, staff) { //closure to save i value and current staff member
                     setTimeout(function () { //finish cleaning room in ten seconds
                         hotel.rooms[i].isClean = true; //room now clean
+                        hotel.roomsDirty--;
                         hotel.rooms[i].beingCleaned = false; //no longer being cleaned
                         hotel.availableFunds-=5;
                         console.log("Room " + i + " is clean, boss!"); //message should be on DOM eventually
@@ -213,6 +213,7 @@ function Controller() {
     this.addEventListeners = function() {
         $("#submitNewRooms").on("click", function() { //click handler to build floor
             var num = parseInt($("#newFloorInput").val());
+            $("#newFloorInput").val("");
             hotel.addFloor(num);
         });
     };
@@ -222,8 +223,8 @@ function Controller() {
     };
     this.resetDisplays = function() { //reset DOM elements
         $("#floorCount").text((hotel.rooms.length / 20));
-        $("#roomsOccupied").text(hotel.roomsOccupied);
-        $("#roomsAvailable").text((hotel.rooms.length - hotel.roomsOccupied));
+        $("#roomsOccupied").text(Object.keys(hotel.currentGuests).length);
+        $("#roomsAvailable").text((hotel.rooms.length - Object.keys(hotel.currentGuests).length)-hotel.roomsDirty);
         $("#guestsCheckedIn").text(Object.keys(hotel.currentGuests).length);
         $("#guestsTotal").text(hotel.guestsTotal);
         $("#guestsRejected").text(hotel.badReviews);
