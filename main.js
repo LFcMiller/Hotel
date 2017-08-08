@@ -7,7 +7,7 @@
 //charge from funds for cleaning staff based on number of rooms cleaned ---IN PROGRESS(CODY)---
 //daily fees for other hotel employees
 //each checkout leaves dirty room, cant be used until clean +++DONE+++
-//hire new cleaning staff as hotel grows
+//hire new cleaning staff as hotel grows -----IN PROGRESS(CHRIS)-----
 //price is per day, set final price to stay length * price +++DONE++
 //Fake Yelp, negative affects lead to bad reviews, extend interval between new guests +++DONE+++
 //Length of Day: 2 minutes
