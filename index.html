@@ -4,11 +4,20 @@
     <script src="main.js"></script>
     <style>
         #checkInDisplay, #checkOutDisplay {
-            width: 100vw;
-            height: 10vh;
+            width: 50vw;
+            height: 20vh;
+            margin: 2vh auto;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-flow: column nowrap;
+            overflow: scroll;
+            overflow-x: hidden;
+            border: 2px solid black;
+        }
+        ::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
         }
     </style>
 </head>
@@ -35,10 +44,8 @@
     <div class="funds">Funds Available: <span id="fundsAvailable"></span></div>
     <!--Money accrued from room payments-->
     <div id="checkInDisplay">
-        <span></span>
     </div>
     <div id="checkOutDisplay">
-        <span></span>
     </div>
 </body>
 </html>
