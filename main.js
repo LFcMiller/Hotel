@@ -4,13 +4,13 @@
 // Guests checked out after predetermined number of days in JS Object +++DONE+++
 // Money accrued from room payments +++DONE+++
 //Starting cleaning staff 2 staff +++DONE+++
-//charge from funds for cleaning staff based on number of rooms cleaned
+//charge from funds for cleaning staff based on number of rooms cleaned ---IN PROGRESS(CODY)---
 //daily fees for other hotel employees
 //each checkout leaves dirty room, cant be used until clean +++DONE+++
 //hire new cleaning staff as hotel grows
 //price is per day, set final price to stay length * price +++DONE++
 //Fake Yelp, negative affects lead to bad reviews, extend interval between new guests +++DONE+++
-//Length of Day: 30 seconds
+//Length of Day: 2 minutes
 //Time to clean room: 10 seconds; ++IMPLEMENTED++
 //Cleaning Staff can only clean one room per day (equivalent to 8 hour shift) +++DONE+++
 //Dynamically create variable name for guest equal to their name from name array +++DONE+++
@@ -29,7 +29,6 @@ $(document).ready(function(){
     day = new Day();
     day.startCount();
 });
-
 function Day() {// creates the day and sets the hour interval to 5 seconds
     this.day = 0;
     this.hour = 0;
@@ -50,8 +49,6 @@ function Day() {// creates the day and sets the hour interval to 5 seconds
         })(this);
     }
 }
-
-
 function Hotel() {
     this.rooms = []; //All rooms in hotel
     this.roomsOccupied = 0; //Rooms currently occupied
@@ -209,7 +206,6 @@ function guestArrival(person){ //Interval for guests arriving at hotel
         }
     }
 }
-
 var day =  null;
 var hotel = null; //reserve variable for document ready
 var controller = null; //reserve variable for document ready
