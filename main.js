@@ -12,7 +12,7 @@
 //Fake Yelp, negative affects lead to bad reviews, extend interval between new guests +++DONE+++
 //Length of Day: 30 seconds
 //Time to clean room: 10 seconds; ++IMPLEMENTED++
-//Cleaning Staff can only clean one room per day (equivalent to 8 hour shift) ---IN PROGRESS(CHRIS)---
+//Cleaning Staff can only clean one room per day (equivalent to 8 hour shift) +++DONE+++
 //Dynamically create variable name for guest equal to their name from name array +++DONE+++
 //save number of good and bad reviews to guests created. After a certain number of bad reviews, they do not return. ---IN PROGRESS(CODY)---
 //Create a system for repeat guests
@@ -26,21 +26,29 @@ $(document).ready(function(){
     hotel = new Hotel(); //sets variable to its actual value, the Hotel
     controller = new Controller(); //sets variable to its actual value, the Controller
     setInterval(getName, hotel.currentDemand()); //time period set to period adjusted for reviews
+    day = new Day();
 });
 
-function Day() {
-    var day = 0;
-    var hour = 0;
-    if (hour === 24) {
-        day++;
+function Day() {// creates the day and sets the hour interval to 5 seconds
+    this.day = 0;
+    this.hour = 0;
+    this.startCount = (function(time){
+        setInterval(function() {
+            time.hour++;
+            if (time.hour === 24) {
+                for (var i = 0; i < hotel.cleaningStaff.length; i++) {//resetting the cleaning staffs availability each new day
+                    hotel.cleaningStaff[i].workedToday = false;
+                    hotel.cleaningStaff[i].workTimeRemaining = 40000;
 
-    }
-    setInterval(function() {
-        hour++
-    }, 5000)
+                }
+                new_emp.status = true;
+                time.day++;
+                time.hour = 0;
+            }
+        }, 5000)
+    })(this)
+    this.startCount();
 }
-
-console.log()
 
 
 function Hotel() {
@@ -60,8 +68,9 @@ function Hotel() {
         }
     };
     this.clean = function() { //clean hotel with all cleaning staff
-        for (var i = 0; i < this.cleaningStaff.length; i++) {
-            this.cleaningStaff[i].cleanRoom();
+        var availStaff = this.cleaningStaff.map(function(x){return x.workedToday === false});//new array of staff who haven't worked today
+        for (var i = 0; i < availStaff.length; i++) {
+            availStaff[i].cleanRoom();
         }
     };
     this.init = function() {
@@ -144,6 +153,7 @@ function Staff(name) {
     this.name = name;
     this.speed = 1; //Can be altered to affect how fast they clean. Maybe with happiness level?
     this.workedToday = false; //If true, they should wait until next day begins to try cleaning again.
+    this.workTimeRemaining = 40000; //If we want tasks that take up certain amounts of time use this to decrement realtive to hours
     this.cleanRoom = function () {
         var roomCleaned = false;
         for (var i = 0; i < hotel.rooms.length; i++) {
@@ -155,7 +165,6 @@ function Staff(name) {
                         hotel.rooms[i].isClean = true;
                         hotel.rooms[i].beingCleaned = false;
                         console.log("Room " + i + " is clean, boss!");
-                        staff.workedToday = true;
                         staff.workTimeRemaining = 0; //AFTER ROOM IS CLEANED NO EMPLOYEE DONE FOR DAY
                         staff.workedToday = true; //AFTER WORK IS DONE STATUS CHANGED
                     }, 10000);
@@ -167,7 +176,6 @@ function Staff(name) {
             console.log("Nothing to clean today!");
         }
     };
-    this.workTimeRemaining = 10000;
 }
 function Controller() {
     this.addEventListeners = function() {
@@ -206,6 +214,8 @@ function guestArrival(person){ //Interval for guests arriving at hotel
         }
     }
 }
+
+var day =  new Day();
 var hotel = null;
 var controller = null;
 var ajaxOptions = {
