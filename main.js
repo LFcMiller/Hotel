@@ -39,7 +39,6 @@ function Day() {// creates the day and sets the hour interval to 5 seconds
                 for (var i = 0; i < hotel.cleaningStaff.length; i++) {//resetting the cleaning staffs availability each new day
                     hotel.cleaningStaff[i].workedToday = false;
                     hotel.cleaningStaff[i].workTimeRemaining = 40000;
-
                 }
                 new_emp.status = true;
                 time.day++;
