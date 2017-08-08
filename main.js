@@ -33,13 +33,6 @@ $(document).ready(function(){
 function Day() {// creates the day and sets the hour interval to 5 seconds
     this.day = 0;
     this.hour = 0;
-    this.startCount = (function(time){
-        setInterval(function() {
-            time.hour++;
-            if (time.hour === 24) {
-                for (var i = 0; i < hotel.cleaningStaff.length; i++) {//resetting the cleaning staffs availability each new day
-                    hotel.cleaningStaff[i].workedToday = false;
-                    hotel.cleaningStaff[i].workTimeRemaining = 40000;
     this.startCount = function () {
         (function (time) {
             setInterval(function () {
