@@ -27,6 +27,7 @@ $(document).ready(function(){
     controller = new Controller(); //sets variable to its actual value, the Controller
     setInterval(getName, hotel.currentDemand()); //time period set to period adjusted for reviews
     day = new Day();
+    day.startCount();
 });
 
 function Day() {// creates the day and sets the hour interval to 5 seconds
@@ -39,15 +40,23 @@ function Day() {// creates the day and sets the hour interval to 5 seconds
                 for (var i = 0; i < hotel.cleaningStaff.length; i++) {//resetting the cleaning staffs availability each new day
                     hotel.cleaningStaff[i].workedToday = false;
                     hotel.cleaningStaff[i].workTimeRemaining = 40000;
-                }
-                new_emp.status = true;
-                time.day++;
-                time.hour = 0;
-            }
-        }, 5000)
-    })(this)
-    this.startCount();
+    this.startCount = function () {
+        (function (time) {
+            setInterval(function () {
+                time.hour++;
+                if (time.hour === 24) {
+                    for (var i = 0; i < hotel.cleaningStaff.length; i++) {//resetting the cleaning staffs availability each new day
+                        hotel.cleaningStaff[i].workedToday = false;
+                        hotel.cleaningStaff[i].workTimeRemaining = 40000;
 
+                    }
+                    time.day++;
+                    time.hour = 0;
+                }
+            }, 5000)
+        })(this);
+    }
+}
 
 
 function Hotel() {
@@ -151,16 +160,6 @@ function Staff(name) {
     this.workedToday = false; //If true, they should wait until next day begins to try cleaning again.
     this.workTimeRemaining = 40000; //If we want tasks that take up certain amounts of time use this to decrement realtive to hours
     this.cleanRoom = function () {
-        var roomCleaned = false;
-        for (var i = 0; i < hotel.rooms.length; i++) {
-            if (hotel.rooms[i].isClean === false && hotel.rooms[i].beingCleaned === false) {
-                hotel.rooms[i].beingCleaned = true;
-                roomCleaned = true;
-                (function (i, staff) {
-                    setTimeout(function () {
-                        hotel.rooms[i].isClean = true;
-                        hotel.rooms[i].beingCleaned = false;
-                        console.log("Room " + i + " is clean, boss!");
         for (var i = 0; i < hotel.rooms.length; i++) { //cycle through hotel rooms
             if (hotel.rooms[i].isClean === false && hotel.rooms[i].beingCleaned === false) { //if room is dirty and not currently being cleaned
                 hotel.rooms[i].beingCleaned = true; //mark room as being cleaned
@@ -218,14 +217,7 @@ function guestArrival(person){ //Interval for guests arriving at hotel
     }
 }
 
-var day =  new Day();
-var hotel = null;
-var controller = null;
-var ajaxOptions = {
-    url: 'https://uinames.com/api/?region=united+states',
-    success: guestArrival,
-    dataType: 'json',
-    error: function(){ console.log('oops')}
+var day =  null;
 var hotel = null; //reserve variable for document ready
 var controller = null; //reserve variable for document ready
 var ajaxOptions = { //random name repository preferences
@@ -234,6 +226,6 @@ var ajaxOptions = { //random name repository preferences
     dataType: 'json', //type data is saved as
     error: function(){ console.log('oops')} //logged if there was a problem getting name
 };
-function getName(){ //function to start getting random name
+function getName() { //function to start getting random name
     $.ajax(ajaxOptions);
 }
