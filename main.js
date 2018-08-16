@@ -1,44 +1,11 @@
-//Each floor has 20 rooms, rooms must be built in groups of 20 +++DONE+++
-// Rooms are to be built with money +++DONE+++
-// Create New Guests on a set interval +++DONE+++
-// Guests checked out after predetermined number of days in JS Object +++DONE+++
-// Money accrued from room payments +++DONE+++
-//Starting cleaning staff 2 staff +++DONE+++
-//charge from funds for cleaning staff based on number of rooms cleaned +++DONE+++
-//Automate Hotel Cleaning staff +++DONE+++
-//daily fees for other hotel employees
-//each checkout leaves dirty room, cant be used until clean +++DONE+++
-//hire new cleaning staff as hotel grows -----IN PROGRESS(CHRIS)-----
-//price is per day, set final price to stay length * price +++DONE++
-//Fake Yelp, negative affects lead to bad reviews, extend interval between new guests +++DONE+++
-//Length of Day: 2 minutes +++DONE+++
-//Time to clean room: 10 seconds; ++IMPLEMENTED++
-//Cleaning Staff can only clean one room per day (equivalent to 8 hour shift) +++DONE+++
-//Dynamically create variable name for guest equal to their name from name array +++DONE+++
-//save number of good and bad reviews to guests created. After a certain number of bad reviews, they do not return. +++DONE+++
-//Create a system for repeat guests +++DONE+++
-//Update DOM Elements to reflect current values +++DONE+++
-//attach click handler to button to build new floors +++DONE+++
-//Set cycle of guests arriving at Hotel to start after first floor is built
-//Create DOM Elements for hiring new cleaning staff
-//Set interval for hotel to be cleaned +++DONE+++
-//Make guest check in and checkout display messages display as a scroll, so that actions happening in quick succession can all be seen +++DONE+++
-//Update rooms available to reflect rooms that are dirty +++DONE+++
+//TODO: daily fees for other hotel employees
+//TODO: hire new cleaning staff as hotel grows -----IN PROGRESS(CHRIS)-----
+//TODO: Create DOM Elements for hiring new cleaning staff
+//TODO: Make staff into staff object template with inherited sub-staff classifications
 
 $(document).ready(function(){
     hotel = new Hotel(); //sets variable to its actual value, the Hotel
     controller = new Controller(); //sets variable to its actual value, the Controller
-    setInterval(function(){
-        var randomNum = Math.floor(Math.random()*3);
-        if(!hotel.possibleReturnGuests.length || randomNum) {
-            getName();
-        } else {
-            var returnGuest = hotel.possibleReturnGuests[Math.floor(Math.random()*hotel.possibleReturnGuests.length)];
-            var textInsert = $("<div>").text("Welcome back, "+returnGuest.name+"!");
-            $("#checkInDisplay").append(textInsert);
-            hotel.checkIn(returnGuest);
-        }
-    }, hotel.currentDemand()); //time period set to period adjusted for reviews
     day = new Day();
     day.startCount();
 });
@@ -102,6 +69,9 @@ function Hotel() {
         var numberOfFloors = parseInt(number);
         if(numberOfFloors === undefined || isNaN(numberOfFloors)) {
             console.log("That is not a viable number of floors.");
+            return;
+        }
+        if(this.availableFunds-(numberOfFloors*2000) < 0) {
             return;
         }
         this.availableFunds-=(numberOfFloors*2000); //Remove cost of floor
@@ -209,17 +179,34 @@ function Staff(name) {
         console.log("Nothing to clean today!"); //logged if all rooms were already clean
     };
 }
+// function CleaningStaff()
 function Controller() {
     this.addEventListeners = function() {
-        $("#submitNewRooms").on("click", function() { //click handler to build floor
-            var num = parseInt($("#newFloorInput").val());
-            $("#newFloorInput").val("");
-            hotel.addFloor(num);
-        });
+        $("#submitNewRooms").on("click", this.createNewFloor.bind(this));
+        $("#submitNewRooms").on("click", this.startGuestFlow.bind(this)); //remove interval start click handler
     };
     this.init = function() { //add click handler on startup
         this.addEventListeners();
         this.resetDisplays();
+    };
+    this.createNewFloor = function() {
+        var num = parseInt($("#newFloorInput").val());
+        $("#newFloorInput").val("");
+        hotel.addFloor(num);
+    };
+    this.startGuestFlow = function() {
+        setInterval(function(){
+            var randomNum = Math.floor(Math.random()*3);
+            if(!hotel.possibleReturnGuests.length || randomNum) {
+                getName();
+            } else {
+                var returnGuest = hotel.possibleReturnGuests[Math.floor(Math.random()*hotel.possibleReturnGuests.length)];
+                var textInsert = $("<div>").text("Welcome back, "+returnGuest.name+"!");
+                $("#checkInDisplay").append(textInsert);
+                hotel.checkIn(returnGuest);
+            }
+        }, hotel.currentDemand()); //time period set to period adjusted for reviews
+        $("#submitNewRooms").unbind("click", this.startGuestFlow.bind(this)); //remove interval start click handler
     };
     this.resetDisplays = function() { //reset DOM elements
         $("#floorCount").text((hotel.rooms.length / 20));
@@ -243,7 +230,7 @@ function guestArrival(person){ //Interval for guests arriving at hotel
     }
     hotel.checkIn(guest); //checks in guest
 }
-var day =  null;
+var day =  null; //reserve variable for document ready
 var hotel = null; //reserve variable for document ready
 var controller = null; //reserve variable for document ready
 var ajaxOptions = { //random name repository preferences
